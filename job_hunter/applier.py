@@ -163,6 +163,57 @@ def apply_generic(page: Page, job: dict) -> dict:
         return {"status": "error", "reason": str(e)}
 
 
+def apply_workday(page: Page, job: dict) -> dict:
+    """Postulation via portail Workday (Agnico Eagle, grandes mines)"""
+    try:
+        page.goto(job["url"], wait_until="networkidle", timeout=30000)
+        human_delay(2, 3)
+
+        # Bouton Apply sur Workday
+        apply_btn = page.locator("button:has-text('Apply'), a:has-text('Apply'), "
+                                 "button:has-text('Postuler'), a:has-text('Postuler')")
+        if apply_btn.count() == 0:
+            return {"status": "skip", "reason": "Pas de bouton Workday trouvé"}
+
+        apply_btn.first.click()
+        human_delay(2, 3)
+
+        # Workday demande souvent un compte — tente email
+        email_field = page.locator("input[type='email'], input[autocomplete='email']")
+        if email_field.count() > 0:
+            email_field.first.fill(EMAIL)
+            human_delay(0.5, 1)
+            submit = page.locator("button[type='submit']")
+            if submit.count() > 0:
+                submit.first.click()
+                human_delay(2, 3)
+
+        return {"status": "manual_required",
+                "reason": "Workday: vérification email requise, candidature initiée"}
+    except Exception as e:
+        return {"status": "error", "reason": str(e)}
+
+
+def apply_by_email(page: Page, job: dict) -> dict:
+    """Certains sites locaux demandent juste un email de candidature"""
+    try:
+        page.goto(job["url"], wait_until="networkidle", timeout=30000)
+        human_delay(1, 2)
+
+        # Cherche un mailto: ou formulaire email simple
+        mailto = page.locator("a[href^='mailto:']")
+        if mailto.count() > 0:
+            email_dest = mailto.first.get_attribute("href").replace("mailto:", "").split("?")[0]
+            return {
+                "status": "manual_required",
+                "reason": f"Candidature par email à: {email_dest} — envoie ton CV manuellement"
+            }
+
+        return apply_generic(page, job)
+    except Exception as e:
+        return {"status": "error", "reason": str(e)}
+
+
 def apply_to_job(job: dict, browser_page: Page) -> dict:
     """Route vers le bon applier selon la source"""
     source = job.get("source", "").lower()
@@ -170,6 +221,10 @@ def apply_to_job(job: dict, browser_page: Page) -> dict:
 
     if "indeed" in source or "indeed.com" in url:
         result = apply_indeed(browser_page, job)
+    elif "agnico" in source or "workday" in url:
+        result = apply_workday(browser_page, job)
+    elif any(s in source for s in ["ville rouyn", "uqat", "cssat", "mrc", "emplois gc"]):
+        result = apply_by_email(browser_page, job)
     else:
         result = apply_generic(browser_page, job)
 

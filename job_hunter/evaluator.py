@@ -11,19 +11,21 @@ from scraper import fetch_job_description
 
 
 def build_evaluation_prompt(job: dict, description: str) -> str:
-    profile = CANDIDATE_PROFILE
     return f"""Tu es un recruteur expert. Évalue la compatibilité entre ce candidat et cette offre d'emploi.
 
 ## Profil du candidat
 - Niveau: Junior TI (0-2 ans d'expérience)
-- Compétences: Support informatique, help desk, dépannage, réseaux, Windows/Linux,
-  Active Directory, Office 365, Python, SQL, analyse de données, Power BI, Excel
-- Localisation: Rouyn-Noranda, QC
+- Compétences TI générales: Support informatique, help desk, dépannage, réseaux,
+  Windows/Linux, Active Directory, Office 365, ticketing
+- Compétences données/IA: Python, SQL, Excel, Power BI, analyse de données, machine learning
+- Localisation: Rouyn-Noranda, QC — mobile dans un rayon de 150 km (Abitibi-Témiscamingue)
+- Intérêt pour le secteur minier: ouvert aux postes TI en contexte minier
 
 ## Offre d'emploi
 - Titre: {job.get('title', '')}
 - Entreprise: {job.get('company', '')}
 - Lieu: {job.get('location', '')}
+- Source: {job.get('source', '')}
 - Description: {description[:2000] if description else 'Non disponible'}
 
 ## Instructions
@@ -33,7 +35,8 @@ Réponds UNIQUEMENT en JSON valide avec ce format exact:
   "verdict": "POSTULER" ou "IGNORER",
   "raison": "Explication courte (2-3 phrases max)",
   "points_forts": ["point 1", "point 2"],
-  "points_faibles": ["point 1"]
+  "points_faibles": ["point 1"],
+  "secteur": "minier" ou "public" ou "prive" ou "education"
 }}
 
 Score:
@@ -43,10 +46,11 @@ Score:
 - 0.0-0.39: Mauvais match (ignorer)
 
 Critères importants:
-- Localisation dans un rayon de 100km de Rouyn-Noranda
-- Compétences TI correspondantes (support ou données/IA)
-- Niveau junior acceptable
-- Poste légitime en TI"""
+- Localisation dans un rayon de 150 km de Rouyn-Noranda (toute l'Abitibi-Témiscamingue est OK)
+- Compétences TI correspondantes: support OU données/IA OU TI minier (SCADA, systèmes industriels)
+- Niveau junior acceptable (0-2 ans; les postes "débutant accepté" ont un score bonus)
+- Postes TI dans les mines = excellent score si les compétences de base correspondent
+- Fonctions publiques (ville, gouvernement, UQAT) = score bonus pour stabilité"""
 
 
 def evaluate_job(job: dict) -> dict:

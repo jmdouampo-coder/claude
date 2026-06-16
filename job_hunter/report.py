@@ -61,13 +61,21 @@ def generate_report(jobs_evaluated: list = None):
     applied = sum(1 for j in all_jobs if j[6] in ("success", "partial"))
     good_matches = sum(1 for j in all_jobs if j[5] and j[5] >= 0.6)
     sources = len(set(j[1] for j in all_jobs))
+    mining_jobs = sum(1 for j in all_jobs if j[1] and any(
+        m in j[1] for m in ["Agnico", "IAMGOLD", "McEwen", "Mines", "LinkedIn Mines"]))
 
     html += f"""
 <div class="stats">
   <div class="stat-card"><div class="number">{total}</div><div class="label">Offres trouvées</div></div>
   <div class="stat-card"><div class="number">{good_matches}</div><div class="label">Bons matchs</div></div>
   <div class="stat-card"><div class="number">{applied}</div><div class="label">Candidatures envoyées</div></div>
-  <div class="stat-card"><div class="number">{sources}</div><div class="label">Sources</div></div>
+  <div class="stat-card"><div class="number">{mining_jobs}</div><div class="label">Secteur minier</div></div>
+  <div class="stat-card"><div class="number">{sources}</div><div class="label">Sources scrapées</div></div>
+</div>
+
+<div style="background:#fff3cd;border-left:4px solid #f59e0b;padding:12px 16px;border-radius:8px;margin-bottom:20px;font-size:14px;">
+  <strong>Sources couvertes:</strong> Indeed · Jobillico · Jobboom · Emplois GC · Ville de Rouyn-Noranda · UQAT ·
+  Agnico Eagle · IAMGOLD · LinkedIn Mines
 </div>
 """
 
