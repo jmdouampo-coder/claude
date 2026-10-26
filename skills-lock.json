@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "skills": {
+    "facebook-marketing": {
+      "source": "TerminalSkills/skills",
+      "sourceType": "github",
+      "skillPath": "skills/facebook-marketing/SKILL.md",
+      "computedHash": "f342b724b850a4cb46498cca369401f8a285c8b4b38e5c4683fc71cf4d755b03"
+    }
+  }
+}
