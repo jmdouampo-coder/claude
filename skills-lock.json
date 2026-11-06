@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "skills": {
+    "agent-real-estate-tech": {
+      "source": "ziri22/agency-roster",
+      "sourceType": "github",
+      "skillPath": "skills/business/agent-real-estate-tech/SKILL.md",
+      "computedHash": "e15d6dadf355df2fd432fc59b19309bbed4b8cebf43cc8817b9088a4d8e1e58e"
+    }
+  }
+}
